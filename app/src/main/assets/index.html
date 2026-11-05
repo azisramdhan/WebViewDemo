@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WebView Bridge Demo</title>
+    <style>
+        body { font-family: Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f1f3f4; color: #202124; margin: 0; padding: 20px; text-align: center; }
+        .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.16); margin-bottom: 20px; }
+        button { background-color: #1a73e8; color: white; border: none; border-radius: 8px; padding: 12px 24px; font-size: 16px; font-weight: 600; display: block; width: 100%; margin: 10px 0; }
+        button:active { opacity: 0.8; }
+        .output { background: #e8eaed; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 12px; margin-top: 10px; text-align: left; overflow-x: auto; }
+        h1 { font-size: 24px; margin-bottom: 5px; }
+        h2 { font-size: 16px; color: #5f6368; font-weight: 500; margin-top: 0; margin-bottom: 20px; }
+        h3 { font-size: 15px; margin: 0 0 6px; text-align: left; }
+        .card p { font-size: 14px; line-height: 1.5; color: #3c4043; margin: 0; text-align: left; }
+        .card code { font-family: monospace; font-size: 13px; background: #e8eaed; padding: 1px 5px; border-radius: 4px; }
+        .step { display: flex; gap: 12px; text-align: left; margin-bottom: 14px; }
+        .step:last-child { margin-bottom: 0; }
+        .num { flex: none; width: 24px; height: 24px; border-radius: 12px; background: #1a73e8; color: white; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+        .step div { font-size: 14px; line-height: 1.45; color: #3c4043; }
+    </style>
+</head>
+<body>
+    <h1>WebView Bridge Demo</h1>
+    <h2>Test native communication via addJavascriptInterface</h2>
+
+    <div class="card">
+        <button onclick="Bridge.showToast('Hello from the WebView Bridge!')">Show Native Toast</button>
+        <button onclick="Bridge.openNativeScreen('ProfileSettings')">Open Native Settings</button>
+        <button onclick="requestDeviceData()">Request Device Profile</button>
+        <div id="dataOutput" class="output">Awaiting device profile...</div>
+    </div>
+
+    <div class="card">
+        <h3>What this page is for</h3>
+        <p>Every button above crosses the boundary between the web view and the app. The page calls a method, Kotlin handles it, and anything that comes back arrives as a JSON string. Nothing here talks to a network.</p>
+    </div>
+
+    <div class="card">
+        <h3>Why the bridge returns a string</h3>
+        <p>An <code>@JavascriptInterface</code> method can only hand back a primitive or a <code>String</code>, so the device profile is serialised with <code>org.json</code> and parsed on this side. That is the one real difference from the iOS build, where a <code>WKScriptMessageHandler</code> reply resolves a promise.</p>
+    </div>
+
+    <div class="card">
+        <h3>How Loupe reaches this screen</h3>
+        <div class="step"><span class="num">1</span><div>Someone comments <code>/farm local-demo</code> on a pull request.</div></div>
+        <div class="step"><span class="num">2</span><div>Loupe builds the commit under review with Gradle and installs the APK on an emulator.</div></div>
+        <div class="step"><span class="num">3</span><div>Appium taps <em>Skip to Local HTML Demo</em> and waits for this page to settle.</div></div>
+        <div class="step"><span class="num">4</span><div>The screenshot goes back to the pull request as a comment.</div></div>
+    </div>
+
+    <div class="card">
+        <h3>Why this page is long</h3>
+        <p>A single screenshot only proves that the screen opened. This page runs past the bottom of the emulator on purpose, so the capture has to scroll and stitch the parts together before it posts anything.</p>
+    </div>
+
+    <div class="card">
+        <h3>What a scrolled capture has to get right</h3>
+        <p>It must stop when the page stops moving rather than after a fixed number of flicks, and it must not post the same frame twice. Both are easy to get wrong and obvious in the result.</p>
+    </div>
+
+    <div class="card">
+        <h3>The Legacy screen</h3>
+        <p>The <em>Legacy</em> action in the toolbar opens a second screen, two taps deep. Capturing it proves a recipe can navigate, not just launch the app and shoot.</p>
+    </div>
+
+    <div class="card">
+        <h3>Reaching the bottom</h3>
+        <p>If you can read this in the pull request comment, the capture scrolled the whole page and stitched every part in order.</p>
+    </div>
+
+    <script>
+        function requestDeviceData() {
+            try {
+                document.getElementById('dataOutput').textContent = Bridge.requestDeviceData();
+            } catch (error) {
+                document.getElementById('dataOutput').textContent = 'Bridge unavailable: ' + error;
+            }
+        }
+    </script>
+</body>
+</html>
