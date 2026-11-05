@@ -6,7 +6,7 @@
     <string name="title_local_demo">Local HTML Demo</string>
     <string name="title_legacy">Legacy WebView Info</string>
     <string name="heading">WebView Demo App</string>
-    <string name="credentials">admin / password  ·  loupe-test</string>
+    <string name="credentials">admin / password  ·  loupe-test  ·  android</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="log_in">Log In</string>
